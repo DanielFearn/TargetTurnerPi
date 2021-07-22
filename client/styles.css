@@ -1,0 +1,154 @@
+body {
+    font-family: sans-serif;
+    padding-bottom: 300px;
+}
+table, th, td {
+    border: 1px solid #ccc;
+    border-collapse: collapse;
+}
+
+button, input[type="submit"] {
+    height: 30px;
+    background-color: rgb(200, 200, 200);
+    padding-left: 10px;
+    padding-right: 10px;
+    margin: 2px;
+    color: black;
+    border: none;
+    border-radius: 0px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button.danger {
+    background-color: #f55;
+    color: white;
+}
+
+input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+}
+
+input[type="checkbox"]:checked {
+    background: red;
+}
+
+.container {
+    width: 100%;
+    max-width: 1000px;
+    min-width: 300px;
+    margin: 0 auto;
+}
+
+.card {
+    padding: 8px;
+    padding-top: 40px;
+    position: relative;
+    border: 1px solid lightseagreen;
+    
+    margin-bottom: 20px;
+}
+
+.card h2 {
+    width: calc(100% - 8px);
+    padding: 4px;
+    margin: 0;
+    background-color:lightseagreen;
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: white;
+    font-size: 20px;
+}
+
+.button {
+    background-color: #bbb;
+    border-left: 2px solid #ddd;
+    border-top: 2px solid #ddd;
+
+    border-right: 2px solid #888;
+    border-bottom: 2px solid #888;
+}
+
+.sequence, .presets {
+    float: left;
+    width: calc(100% - 18px);
+}
+
+.sequence__table {
+    width: 100%;
+}
+
+.sequence__table input {
+    width: calc(100% - 10px);
+    border-radius: 0;
+}
+
+.sequence__cell {
+    background-color: #fff;
+    height: 30px;
+    cursor: pointer;
+}
+
+.sequence__cell::after {
+    content: 'Away';
+    color: #bbb;
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+}
+
+.sequence__cell--active {
+    background-color: #7f7;
+}
+
+.sequence__cell--active::after {
+    content: 'Face';
+    color: black;
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+}
+
+.sequence__deletebutton {
+    display: inline-block;
+    height: 30px;
+    width: 60px;
+    background-color: #f55;
+    color: white;
+    border: none;
+    border-radius: 0px;
+    cursor: pointer;
+}
+
+.controls {
+    float: left;
+    width: 200px;
+}
+
+.controls button {
+    width: calc(50% - 7px);
+}
+
+.controls button:first-of-type {
+    width: calc(100% - 5px);
+}
+
+.random {
+    float: right;
+    width: calc(100% - 250px);
+}
+
+@media only screen and (max-width: 540px) {
+
+    
+    .random {
+        float: left;
+        width: calc(100% - 18px);
+    }
+    
+    .controls {
+        width: calc(100% - 18px);
+    }
+}
