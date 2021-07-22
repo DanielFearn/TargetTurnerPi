@@ -1,11 +1,9 @@
 const app = require('express')();
+const controller = require('./sequenceController')(false);
 
 
-app.get('/upload/:data', (req, res) => {});
+app.get('/upload/:data', controller.uploadHandler);
 
-app.get('/faceall', (req, res) => {});
-app.get('/awayall', (req, res) => {});
-app.get('/start', (req, res) => {});
-app.get('/stop', (req, res) => {});
+app.get('/:command', controller.commandHandler);
 
-app.listen('App started on port 80');
+app.listen(80);
