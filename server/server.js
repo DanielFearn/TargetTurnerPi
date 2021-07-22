@@ -3,8 +3,8 @@ const app = express();
 const controller = require('./sequenceController')(true);
 const path = require('path');
 
-
-app.get('/upload/:data', controller.uploadHandler);
+app.use(express.json());
+app.post('/upload/', controller.uploadHandler);
 
 app.get('/command/:command', controller.commandHandler);
 

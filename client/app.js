@@ -37,12 +37,6 @@ var SequenceInput = {
 
         var th3 = document.createElement('th');
 
-        /*var addTargetButton = document.createElement('button');
-        addTargetButton.appendChild(document.createTextNode('Add Target'));
-        addTargetButton.onclick = this.addTarget.bind(this);
-
-        th3.appendChild(addTargetButton); */
-
         th3.setAttribute('rowspan', 2);
         th3.setAttribute('style', 'width: 60px');
 
@@ -178,36 +172,30 @@ var SequenceInput = {
         var table = document.getElementById('sequenceTable');
         var rows = table.children;
 
-        var outputString = (rows.length-2).toString() + ',';
 
         for (var r = 0; r <  rows.length-deadRowsTop; r++) {
-            data[r] = [];
+            data[r] = {targetState: [], duration: 0};
 
             var cells = rows[r+deadRowsTop].children;
             var b;
 
             for (b = 0; b < cells.length-deadColsRight; b++) {
                 var active = cells[b].classList.contains('sequence__cell--active') ? 1 : 0;
-                data[r][b] = (active);
-                outputString += active.toString() + ',';
+                data[r].targetState[b] = (active);
             }
 
-            outputString += '0,'.repeat(this.maxTargets - (cells.length-deadColsRight));
-
-            // duration value
-            data[r][b] = parseFloat(cells[b].children[0].value);
-            outputString += cells[b].children[0].value + ',';
+            data[r].duration = parseFloat(cells[b].children[0].value);
         }
 
         console.log(data);
-        console.log(outputString);
 
         document.getElementById('upload_button').innerHTML = 'Uploading...';
         var originalColour = document.getElementById('upload_button').style.backgroundColor;
         document.getElementById('upload_button').style.backgroundColor = 'red';
 
         var request = new XMLHttpRequest();
-        request.open('GET', '/upload/' + outputString, true);
+        request.open('POST', '/upload/');
+        request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
         request.onload = function () {
             document.getElementById('upload_button').innerHTML = 'Sequence uploaded!';
             document.getElementById('upload_button').style.backgroundColor = originalColour;
@@ -220,7 +208,7 @@ var SequenceInput = {
                 alert('Connection to the controller has been lost.');
             }
         }
-        request.send();
+        request.send(JSON.stringify(data));
 
 
     },

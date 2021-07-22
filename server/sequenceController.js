@@ -1,8 +1,13 @@
 module.exports = function(debugging = false) {
 
+    const maxTargets = 10;
     var targetStates = [];
-    targetStates.length = 10;
+    targetStates.length = maxTargets;
     targetStates.fill(0);
+
+    var sequenceIndex = 0;
+    var sequence = [];
+
 
     function printTargets(){
         if(!debugging) return;
@@ -11,7 +16,8 @@ module.exports = function(debugging = false) {
 
     return {
         uploadHandler: (req, res) => {
-            console.log('Data: '+req.params.data);
+            console.log(req.body);
+            sequence = JSON.parse(req.params.data);
             res.end('OK');
         },
 
