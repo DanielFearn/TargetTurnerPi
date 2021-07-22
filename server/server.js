@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const controller = require('./sequenceController')(false);
+const controller = require('./sequenceController')(true);
 const path = require('path');
 
 
