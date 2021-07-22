@@ -1,0 +1,570 @@
+<!-- 
+	Changes from V4: 
+	- support for changing number of targets up to a max
+	- blank data added to ensure data sent is max no. of targets
+	- stylistic improvements
+	- style element moved to head as per standard
+
+
+-->
+
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Target System GUI V5</title>
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+		<style>
+
+			body {
+				font-family: sans-serif;
+				padding-bottom: 300px;
+			}
+			table, th, td {
+				border: 1px solid #ccc;
+				border-collapse: collapse;
+			}
+		
+			button, input[type="submit"] {
+				height: 30px;
+				background-color: rgb(200, 200, 200);
+				padding-left: 10px;
+				padding-right: 10px;
+				margin: 2px;
+				color: black;
+				border: none;
+				border-radius: 0px;
+				font-weight: bold;
+				cursor: pointer;
+			}
+
+			button.danger {
+				background-color: #f55;
+				color: white;
+			}
+		
+			input[type="checkbox"] {
+				width: 20px;
+				height: 20px;
+			}
+		
+			input[type="checkbox"]:checked {
+				background: red;
+			}
+		
+			.container {
+				width: 100%;
+				max-width: 1000px;
+				min-width: 300px;
+				margin: 0 auto;
+			}
+
+			.card {
+				padding: 8px;
+				padding-top: 40px;
+				position: relative;
+				border: 1px solid lightseagreen;
+				
+				margin-bottom: 20px;
+			}
+
+			.card h2 {
+				width: calc(100% - 8px);
+				padding: 4px;
+				margin: 0;
+				background-color:lightseagreen;
+				position: absolute;
+				top: 0;
+				left: 0;
+				color: white;
+				font-size: 20px;
+			}
+		
+			.button {
+				background-color: #bbb;
+				border-left: 2px solid #ddd;
+				border-top: 2px solid #ddd;
+		
+				border-right: 2px solid #888;
+				border-bottom: 2px solid #888;
+			}
+		
+			.sequence, .presets {
+				float: left;
+				width: calc(100% - 18px);
+			}
+		
+			.sequence__table {
+				width: 100%;
+			}
+		
+			.sequence__table input {
+				width: calc(100% - 10px);
+				border-radius: 0;
+			}
+		
+			.sequence__cell {
+				background-color: #fff;
+				height: 30px;
+				cursor: pointer;
+			}
+		
+			.sequence__cell::after {
+				content: 'Away';
+				color: #bbb;
+				display: inline-block;
+				width: 100%;
+				text-align: center;
+			}
+		
+			.sequence__cell--active {
+				background-color: #7f7;
+			}
+		
+			.sequence__cell--active::after {
+				content: 'Face';
+				color: black;
+				display: inline-block;
+				width: 100%;
+				text-align: center;
+			}
+		
+			.sequence__deletebutton {
+				display: inline-block;
+				height: 30px;
+				width: 60px;
+				background-color: #f55;
+				color: white;
+				border: none;
+				border-radius: 0px;
+				cursor: pointer;
+			}
+		
+			.controls {
+				float: left;
+				width: 200px;
+			}
+
+			.controls button {
+				width: calc(50% - 7px);
+			}
+
+			.controls button:first-of-type {
+				width: calc(100% - 5px);
+			}
+		
+			.random {
+				float: right;
+				width: calc(100% - 250px);
+			}
+
+			@media only screen and (max-width: 540px) {
+
+				
+				.random {
+					float: left;
+					width: calc(100% - 18px);
+				}
+				
+				.controls {
+					width: calc(100% - 18px);
+				}
+			}
+	
+		
+		</style>
+
+	</head>
+	<body>
+
+		<div class="container">
+
+			<center><h1>Target Sequence Controller</h1></center>
+
+			<div class="sequence card">
+				<h2>Input Sequence</h2>
+				<table id="sequenceTable" class="sequence__table">
+				
+				</table>
+
+				<button onclick="SequenceInput.addBlankRow()">Add Step</button>
+			
+			<button onclick="SequenceInput.changeNumTargets()">Set number of targets</button>
+			
+			<button class="danger" onclick="if(confirm('Are you sure you want to delete the entire sequence?')){SequenceInput.emptyTable(); SequenceInput.init(SequenceInput.numTargets)}">Clear</button>
+			</div>
+	
+			
+	
+			<br><br><br>
+	
+			<div class="random card">
+				<h2>Generate random sequence</h2>
+				<form id="randomSequence" onsubmit="SequenceInput.handleRandomForm(event)">
+					
+					<table>
+						<tr><td>Minimum target duration:</td><td><input name="min" type="number" step="0.1" min="0.1" max="10" required><br></td></tr>
+						<tr><td>Maximum target duration:</td><td><input name="max" type="number" step="0.1" min="0.1" max="10" required><br></td></tr>
+						<tr><td>Away targets inbetween:</td><td><input name="away" type="checkbox"></td></tr>
+					</table>
+	
+				
+	
+					<input type="submit" value="Generate">
+	
+				</form>
+	
+			</div>
+
+			<div class="controls card">
+					<h2>Controls</h2>
+					<button onclick="SequenceInput.sendData()" id="upload_button">Upload sequence</button>
+					<br><br>
+		
+					<button onclick="SequenceInput.sendSimpleCommand('start');">Run</button>
+					<button onclick="SequenceInput.sendSimpleCommand('stop');">Stop</button>
+					<br><br>
+					<button onclick="SequenceInput.sendSimpleCommand('faceall');">Face</button>
+					<button onclick="SequenceInput.sendSimpleCommand('awayall');">Away</button>
+				</div>
+	
+			<div class="presets card">
+				<h2>Load a preset sequence</h2>
+				Timed & Precision 1:
+				<ul>
+					<li><button onclick=" SequenceInput.fillSequence(presetSequences.tp1s1);">Stage 1</button></li>
+					<li><button onclick=" SequenceInput.fillSequence(presetSequences.tp1s2);">Stage 2</button></li>
+					<li><button onclick=" SequenceInput.fillSequence(presetSequences.tp1s3);">Stage 3</button></li>
+				</ul>
+	
+				
+			</div>
+	
+			<br>
+	
+			
+		</div>
+
+		
+		
+		
+	</body>
+	
+	
+
+	<script>
+
+		var presetSequences = {
+			tp1s1: [[1, 120], [0, 1]],
+			tp1s2: [[1, 2], [0, 5], [1, 2], [0, 5], [1, 2], [0, 5], [1, 2], [0, 5], [1, 2], [0, 5], [1, 2], [0, 5]],
+			tp1s3: [[1, 3], [0, 5], [1, 3], [0, 5], [1, 3], [0, 5]]
+		}
+
+		var SequenceInput = {
+			numTargets: 4,
+			maxTargets: 10, // this number MUST be the same as on the controller
+			defaultDuration: 1,
+			defaultRandomSettings: {
+				min: 1,
+				max: 3,
+				duration: 15,
+				away: false
+			},
+		
+			sequenceData: [],
+
+			init: function(targets = 1) {
+
+				this.emptyTable();
+
+				this.numTargets = targets;
+				var table = document.getElementById('sequenceTable');
+
+				var tr1 = document.createElement('tr');
+
+				var th1 = document.createElement('th');
+				th1.setAttribute('colspan', targets);
+				th1.appendChild(document.createTextNode('Target'));
+
+				var th2 = document.createElement('th');
+				th2.setAttribute('rowspan', 2);
+				th2.setAttribute('style', 'width: 100px');
+				th2.appendChild(document.createTextNode('Duration (s)'));
+
+				var th3 = document.createElement('th');
+
+				/*var addTargetButton = document.createElement('button');
+				addTargetButton.appendChild(document.createTextNode('Add Target'));
+				addTargetButton.onclick = this.addTarget.bind(this);
+
+				th3.appendChild(addTargetButton); */
+
+				th3.setAttribute('rowspan', 2);
+				th3.setAttribute('style', 'width: 60px');
+
+				tr1.appendChild(th1);
+				tr1.appendChild(th2);
+				tr1.appendChild(th3);
+				table.appendChild(tr1);
+
+				var tr2 = document.createElement('tr');
+				
+				for (var i = 0; i < targets; i++) {
+					var idColHead = document.createElement('th');
+					var text = document.createTextNode(i+1);
+					idColHead.appendChild(text);
+					tr2.appendChild(idColHead);
+				}
+
+				table.appendChild(tr2);
+				
+			},
+
+			emptyTable: function() {
+				var table = document.getElementById("sequenceTable");
+				while (table.firstChild) {
+					table.removeChild(table.firstChild);
+				}
+			},
+			
+			changeNumTargets: function(){
+				newTargets = prompt('Enter the number of targets connected:');
+				if(!newTargets) return;
+				if(isNaN(newTargets)) return;
+				newTargets = parseInt(newTargets);
+
+				if(newTargets > this.maxTargets){
+					alert('Maximum number of targets is ' + this.maxTargets);
+					return;
+				}
+
+				this.init(newTargets);
+
+			},
+
+			addRow: function(state) {
+				var newRow = document.createElement('tr');
+
+				for (var i = 0; i < this.numTargets; i++) {
+					var newCell = document.createElement('td');
+					newCell.classList.add('sequence__cell');
+
+					if (state[i]){
+						newCell.classList.add('sequence__cell--active');
+					}
+
+					newCell.onclick = SequenceInput.buttonClick;
+
+					newRow.appendChild(newCell);
+				}
+
+				var durationCell = document.createElement('td');
+				var inputBox = document.createElement('input');
+                inputBox.type = 'number';
+                inputBox.step = 0.1;
+                inputBox.min = 0.1;
+                inputBox.max = 90;
+				inputBox.value = state[this.numTargets];
+
+				durationCell.appendChild(inputBox);
+				newRow.appendChild(durationCell);
+
+				var deleteCell = document.createElement('td');
+				var deleteButton = document.createElement('button');
+				deleteButton.appendChild(document.createTextNode('Delete'));
+				deleteButton.onclick = function (e) {this.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode)};
+				deleteButton.classList.add('sequence__deletebutton');
+				deleteCell.append(deleteButton);
+				newRow.appendChild(deleteCell);
+
+				document.getElementById('sequenceTable').appendChild(newRow);
+
+			},
+
+			addBlankRow: function(time = this.defaultDuration) {
+				var rowState = [];
+				const defaultTargetState = false;
+
+				for (var i = 0; i < this.numTargets; i++) {
+					rowState.push(defaultTargetState);
+				}
+				rowState.push(time);
+
+				this.addRow(rowState);
+			},
+
+			addRandomRow: function(duration) {
+				var newRowState = [];
+				for (var i = 0; i < this.numTargets; i++) {
+					newRowState.push(Math.random()>0.5);
+				}
+				newRowState.push(duration);
+				this.addRow(newRowState);
+
+			},
+			
+			fillSequence: function(sequence) {
+				this.emptyTable();
+				this.init(this.numTargets);
+
+				for (var i = 0; i < sequence.length; i++) {
+					var line = [];
+					for (var j = 0; j < this.numTargets; j++) {
+						line.push(sequence[i][0]);
+					}
+					line.push(sequence[i][1]);
+					
+					this.addRow(line);
+				}
+			},
+
+			buttonClick: function(event) {
+				var cell = event.target;
+
+				cell.classList.toggle('sequence__cell--active');
+			},
+
+			sendData: function() {
+
+				var deadRowsTop = 2;
+				var deadColsRight = 2;
+
+				var data = [];
+
+				var table = document.getElementById('sequenceTable');
+				var rows = table.children;
+
+				var outputString = (rows.length-2).toString() + ',';
+
+				for (var r = 0; r <  rows.length-deadRowsTop; r++) {
+					data[r] = [];
+
+					var cells = rows[r+deadRowsTop].children;
+					var b;
+
+					for (b = 0; b < cells.length-deadColsRight; b++) {
+						var active = cells[b].classList.contains('sequence__cell--active') ? 1 : 0;
+						data[r][b] = (active);
+						outputString += active.toString() + ',';
+					}
+
+					outputString += '0,'.repeat(this.maxTargets - (cells.length-deadColsRight));
+
+					// duration value
+					data[r][b] = parseFloat(cells[b].children[0].value);
+					outputString += cells[b].children[0].value + ',';
+				}
+
+				console.log(data);
+				console.log(outputString);
+
+				document.getElementById('upload_button').innerHTML = 'Uploading...';
+				var originalColour = document.getElementById('upload_button').style.backgroundColor;
+				document.getElementById('upload_button').style.backgroundColor = 'red';
+
+				var request = new XMLHttpRequest();
+				request.open('GET', '/upload/' + outputString, true);
+				request.onload = function () {
+					document.getElementById('upload_button').innerHTML = 'Sequence uploaded!';
+					document.getElementById('upload_button').style.backgroundColor = originalColour;
+					setTimeout(function(){
+						document.getElementById('upload_button').innerHTML = 'Upload sequence';
+					}, 2000);
+				}
+				request.onreadystatechange = function() {
+					if(request.readyState == 4 && request.status != 200) {
+						alert('Connection to the controller has been lost.');
+					}
+				}
+				request.send();
+
+
+			},
+		
+			randomSequence: function(minTime, maxTime, awayInBetween){
+
+				this.emptyTable();
+				this.init(this.numTargets);
+
+				var targetsToShow = [];
+
+				for (var k = 0; k < this.numTargets; k++) {
+				    targetsToShow.push(k);
+				}
+
+				var j, x, i;
+				for (i = targetsToShow.length - 1; i > 0; i--) {
+				    j = Math.floor(Math.random() * (i + 1));
+				    x = targetsToShow[i];
+				    targetsToShow[i] = targetsToShow[j];
+				    targetsToShow[j] = x;
+				}
+
+				for (var l = 0; l  < this.numTargets; l++) {
+				    var rowState = [];
+
+				    for (var m = 0; m < this.numTargets; m++) {
+				        rowState.push(targetsToShow[l] == m);
+				        
+				    }
+				    if(awayInBetween) {
+				        this.addBlankRow(Math.floor((minTime + Math.random()*(maxTime - minTime))*10) / 10);
+				    }
+
+				    rowState.push(Math.floor((minTime + Math.random()*(maxTime - minTime))*10) / 10);
+				    this.addRow(rowState);
+				}
+
+				this.addBlankRow(0.1);
+
+			},
+
+			handleRandomForm: function(event) {
+				event.preventDefault();
+				var form = event.target;
+
+				var min = parseFloat(form.min.value);
+				var max = parseFloat(form.max.value);
+				var away = form.away.checked;
+
+				if (min >= max) {
+					alert('Minimum duration must be shorter than maximum duration.');
+					return false;
+				}
+
+
+				this.randomSequence(min, max, away);
+			},
+
+			fillRandomSettings: function() {
+				var form = document.getElementById('randomSequence');
+				form.min.value = this.defaultRandomSettings.min;
+				form.max.value = this.defaultRandomSettings.max;
+				form.away.checked = this.defaultRandomSettings.away;
+			},
+
+			sendSimpleCommand: function(command) {
+				var request = new XMLHttpRequest();
+				request.open('GET', '/'+command, true);
+				request.onreadystatechange = function() {
+					if(request.readyState == 4 && request.status != 200) {
+						alert('Connection to the controller has been lost.');
+					}
+				}
+				request.send();
+			}
+			
+
+		}
+
+		SequenceInput.init(4);
+		SequenceInput.fillRandomSettings();
+
+		//window.onbeforeunload = () => {return '';}
+
+	</script>
+</html>
+
+<!-- copyright © 2021 Daniel Fearn -->
