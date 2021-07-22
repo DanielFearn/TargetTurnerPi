@@ -1,5 +1,7 @@
 module.exports = function(debugging = false) {
 
+    const maxTargets = 10;
+
     var sequenceIndex = 0;
     var sequence = [];
     var sequenceTimeout;
@@ -37,10 +39,10 @@ module.exports = function(debugging = false) {
 
             switch (req.params.command){
                 case 'faceall':
-                    targetState.fill(1);
+                    writeToTargets(new Array(maxTargets).fill(1));
                     break;
                 case 'awayall':
-                    targetState.fill(0);
+                    writeToTargets(new Array(maxTargets).fill(0));
                     break;
                 case 'start':
                     sequenceIndex = 0;
