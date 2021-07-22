@@ -1,23 +1,34 @@
 module.exports = function(debugging = false) {
 
-    const maxTargets = 10;
-    var targetStates = [];
-    targetStates.length = maxTargets;
-    targetStates.fill(0);
-
     var sequenceIndex = 0;
     var sequence = [];
+    var sequenceTimeout;
 
+    function stepSequence(){
+        if (!sequence[0]) return;
 
-    function printTargets(){
-        if(!debugging) return;
-        console.log('State: '+targetStates.join(''));
+        var currentState = sequence[sequenceIndex].targetState;
+        var duration = sequence[sequenceIndex].duration;
+
+        writeToTargets(currentState);
+
+        sequenceIndex++;
+        if (sequenceIndex >= sequence.length) {return;}
+        sequenceTimeout = setTimeout(stepSequence, duration*1000);
+    }
+
+    function writeToTargets(state){
+        if (debugging) {
+            console.log('State: '+state.join(''));
+        } else {
+            // GPIO stuff
+        }
     }
 
     return {
         uploadHandler: (req, res) => {
-            console.log(req.body);
-            sequence = JSON.parse(req.params.data);
+            console.log('Uploading');
+            sequence = req.body;
             res.end('OK');
         },
 
@@ -26,14 +37,19 @@ module.exports = function(debugging = false) {
 
             switch (req.params.command){
                 case 'faceall':
-                    targetStates.fill(1);
+                    targetState.fill(1);
                     break;
                 case 'awayall':
-                    targetStates.fill(0);
+                    targetState.fill(0);
                     break;
+                case 'start':
+                    sequenceIndex = 0;
+                    stepSequence();
+                    break;
+                case 'stop':
+                    sequenceIndex = 0;
+                    clearTimeout(sequenceTimeout);
             }
-
-            printTargets();
 
             res.end('OK');
         }
