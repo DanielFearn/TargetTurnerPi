@@ -22,9 +22,9 @@ module.exports = function(debugging = false) {
     function writeToTargets(state){
         if (debugging) {
             console.log('State: '+state.join(''));
-        } else {
-            // GPIO stuff
         }
+        
+        // GPIO stuff
     }
 
     return {
