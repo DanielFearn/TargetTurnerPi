@@ -1,6 +1,19 @@
+const Gpio = require('pigpio').Gpio;
+const targetServoPins = [6, 13, 19, 26, 21, 20, 16, 12, 7, 8];
+var motors = [];
+const facePulseWidth = 500;
+const awayPulseWidth = 1500;
+
+//const motor = new Gpio(10, {mode: Gpio.OUTPUT});
+
+
 module.exports = function(debugging = false) {
 
     const maxTargets = 10;
+
+    for (var i = 0; i < targetServoPins.length; i++) {
+        motors.push(new Gpio(targetServoPins[i], {mode: Gpio.OUTPUT}));
+    } 
 
     var sequenceIndex = 0;
     var sequence = [];
@@ -23,8 +36,14 @@ module.exports = function(debugging = false) {
         if (debugging) {
             console.log('State: '+state.join(''));
         }
-        
         // GPIO stuff
+        for (var i = 0; i < state.length; i++){
+            if (state[i]){
+                motors[i].servoWrite(facePulseWidth);
+            } else {
+                motors[i].servoWrite(awayPulseWidth);
+            }
+       }
     }
 
     return {
