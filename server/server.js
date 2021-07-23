@@ -12,3 +12,4 @@ app.get('/', (req, res) => {res.sendFile(path.join(__dirname, '../client/gui.htm
 app.use(express.static(path.join(__dirname, '../client')));
 
 app.listen(80);
+console.log('TargetTurnerPi is listening on port 80');
