@@ -9,6 +9,6 @@ app.post('/upload/', controller.uploadHandler);
 app.get('/command/:command', controller.commandHandler);
 
 app.get('/', (req, res) => {res.sendFile(path.join(__dirname, '../client/gui.html'));});
-app.use(express.static('client'));
+app.use(express.static(path.join(__dirname, '../client')));
 
 app.listen(80);
